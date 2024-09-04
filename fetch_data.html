@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Fetch Data{% endblock %}
+
+{% block content %}
+    <h2>Fetched Products
+        <form action="{% url 'save_to_google_sheet' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Save Data to Google Sheet</button>
+        </form>
+    </h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if page_obj %}
+        <!-- Display the fetched products in a table -->
+        <table class="table table-striped" id="products-table">
+            <thead>
+                <tr>
+                    <th scope="col"><a href="?sort=shopify_product_id" class="text-dark">ID</a></th>
+                    <th scope="col"><a href="?sort=title" class="text-dark">Title</a></th>
+                    <th scope="col"><a href="?sort=body_html" class="text-dark">Description</a></th>
+                    <th scope="col"><a href="?sort=vendor" class="text-dark">Vendor</a></th>
+                    <th scope="col"><a href="?sort=product_type" class="text-dark">Type</a></th>
+                    <th scope="col"><a href="?sort=price" class="text-dark">Price</a></th>
+                    <th scope="col"><a href="?sort=sku" class="text-dark">SKU</a></th>
+                    <th scope="col"><a href="?sort=weight" class="text-dark">Weight</a></th>
+                    <th scope="col"><a href="?sort=image" class="text-dark">Image</a></th>
+                    <th scope="col"><a href="?sort=updated_at" class="text-dark">Updated At</a></th>
+                    <th scope="col"><a href="?sort=status" class="text-dark">Status</a></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                    <tr>
+                        <td>{{ product.shopify_product_id }}</td>
+                        <td>{{ product.title }}</td>
+                        <td>
+                            <div class="description-cell">
+                                {{ product.body_html|safe }}
+                            </div>
+                        </td>
+                        <td>{{ product.vendor }}</td>
+                        <td>{{ product.product_type }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>{{ product.sku }}</td>
+                        <td>{{ product.weight }}</td>
+                        <td><img src="{{ product.image }}" alt="{{ product.title }}" width="50"></td>
+                        <td>{{ product.updated_at }}</td>
+                        <td>{{ product.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination controls -->
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <!-- Fetch More Button -->
+        <a href="{% url 'fetch_more' %}?page={{ page_obj.paginator.num_pages|add:'1' }}" class="btn btn-primary mt-3">Fetch More</a>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+
+    <!-- Buttons for disconnecting and redirecting -->
+    <div class="mt-3">
+        <form action="{% url 'disconnect' %}" method="post" style="display: inline-block; margin-right: 10px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Disconnect</button>
+        </form>
+        
+        <form action="{% url 'google_disconnect' %}" method="post" style="display: inline-block;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Disconnect from Google</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block css %}
+<style>
+    .description-cell {
+        max-height: 3em; /* Limit height to approximately two lines */
+        overflow-y: auto; /* Add vertical scrollbar */
+        overflow-x: hidden; /* Hide horizontal overflow */
+        white-space: nowrap; /* Prevent text wrapping */
+        text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    }
+</style>
+{% endblock %}

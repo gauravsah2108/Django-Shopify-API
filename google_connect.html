@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Google Sheets Integration{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Google Sheets Integration</h1>
+        
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}! You can create a Google Spreadsheet and connect it to your profile.</p>
+
+            {% if not user_profile.google_sheet_id %}
+                <form method="post" action="{% url 'google_connect' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="spreadsheet_name">Spreadsheet Name:</label>
+                        <input type="text" id="spreadsheet_name" name="spreadsheet_name" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create and Connect</button>
+                </form>
+            {% else %}
+                <p>Your Google Sheet is already connected with ID: {{ user_profile.google_sheet_id }}.</p>
+            {% endif %}
+
+            {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% else %}
+            <p>You need to log in to use this feature.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,24 +1,19 @@
-"""
-URL configuration for shopify_project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path, include  # Import include to include app URLs
-
+# product/urls.py
+from django.urls import path
+from .views import home, user_login, user_logout, register, welcome, fetch_data, disconnect, fetch_more, google_auth, oauth2callback, google_connect,google_disconnect,save_to_google_sheet
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('product.urls')),  # Include the product app URLs
+    path('', home, name='home'),
+    path('login/', user_login, name='login'),
+    path('logout/', user_logout, name='logout'),
+    path('register/', register, name='register'),
+    path('welcome/', welcome, name='welcome'),
+    path('fetch_data/', fetch_data, name='fetch_data'),
+    path('disconnect/', disconnect, name='disconnect'),
+    path('fetch_more/', fetch_more, name='fetch_more'),
+    path('google_auth/', google_auth, name='google_auth'),
+    path('oauth2callback/', oauth2callback, name='oauth2callback'),
+    path('google_connect/', google_connect, name='google_connect'),
+    path('google_disconnect/', google_disconnect, name='google_disconnect'),
+    path('save-to-google-sheet/', save_to_google_sheet, name='save_to_google_sheet'),
 ]
